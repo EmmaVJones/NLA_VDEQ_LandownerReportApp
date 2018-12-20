@@ -1,0 +1,132 @@
+---
+output:   
+  html_document:
+    theme: yeti
+params:
+  table_selectedData: 'NULL'
+---
+<style type="text/css" media="all">
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+	
+	<body style="-webkit-print-color-adjust:exact;">"
+</style>
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(DT)
+library(knitr)
+options(digits = 3)
+#knitr::opts_chunk$set(echo = TRUE)
+singlesite <- params[['table_selectedData']]
+```
+
+<div class=WordSection1>
+
+***
+##National Lakes Assessment 2012 Landowner Report
+***
+<table class=MsoTableGrid cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=319 valign=top style='width:239.4pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+####Station Information
+```{r, echo=FALSE}
+stationinfo <- mutate(singlesite,YEAR=2012)%>%select(SITE_ID,EVAL_NAME,YEAR,AREA_HA,VISIT_NO)
+stationinfo <- as.data.frame(t(stationinfo))
+stationinfo$Parameter <- rownames(stationinfo)
+rownames(stationinfo) <- 1:5
+stationinfo$Parameter <- c('Site ID','Lake Name','Year','Lake Area (hectares)','Visit Number')
+names(stationinfo) <- c('Site','Parameter')
+stationinfo <- select(stationinfo,Parameter,Site)
+DT::datatable(stationinfo,rownames=F,colnames=c('',''),options=list(ordering=F,dom='t'),width=350)
+#knitr::kable(stationinfo,format='html',table.att="style='width:30%;'")
+```
+  </td>
+  <td width=319 valign=top style='width:239.4pt;
+  border-left:none;padding: 10pt'>
+  <img src='http://www.state.nj.us/dep/wms/bfbm/GreatGorgeLake.jpg' width="400"  />
+  </td>
+ </tr>
+</table>
+<br>
+<table class=MsoTableGrid cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'> 
+ <tr>
+  <td width=319 valign=top style='width:239.4pt;padding:10pt;'>
+#### Data Results
+```{r, echo=FALSE,warning=FALSE}
+dat <- singlesite[,7:34]
+left <- as.data.frame(t(select(dat,MMI_BENT_NLA12,MMI_ZOOP_NLA6,RDis_IX,RVegQc3OE,
+                               NTL_RESULT,PTL_RESULT,TROPHIC_STATE,MICX_RESULT,ATRAZINE_RESULT,
+                               METHYLMERCURY_RESULT)))%>%
+  mutate(Parameter=c('Macroinvertebrate Index','Zooplankton Index','Riparian Disturbance',
+                     'Riparian Vegetative Cover','Total Nitrogen',
+                     'Total Phosphorus','Trophic State','Microcystin','Atrazine','Mercury'))
+rownames(left) <- 1:10
+right <-  as.data.frame(t(select(dat,BENT_COND,ZOOP_COND,RDIS_COND,RVEG_COND,
+                                 NTL_COND,PTL_COND,TROPHIC_STATE,MICL_REC,
+                                 ATZ_DETECT,SEDHG_MTH_TOP_COND)))
+combine <- cbind(left,right[,1])[,c(2,1,3)]
+names(combine) <- c('Parameter','Result','Condition Class')
+suppressWarnings(combine[7,2] <- ' ') # get rid of first trophic level
+
+DT::datatable(combine,rownames=F,options=list(pageLength=12,ordering=F,dom='t'),width=400)%>%
+  formatStyle('Condition Class',backgroundColor = 
+                styleEqual(c('Poor','Fair','Good','Non Detect','Detect','Low','Medium','High',
+                             'OLIGOTROPHIC','MESOTROPHIC','EUTROPHIC','HYPEREUTROPHIC'),
+                           c('red', 'yellow','limegreen','limegreen',
+                             'yellow','limegreen','yellow','red','limegreen',
+                             'yellow','red','burgundy')))
+
+
+
+```
+ </td>
+ 
+ <td width=300 valign=top style='width:175pt;
+  border-left:none;padding:0in 5.4pt 0in 2pt'>
+   <img src='http://www.estormwater.com/sites/estormwater.com/files/VADEQ.jpg' width="250" height="150" style="float:center;" />
+   <p>The 'Landowner Report' is not an official site specific VDEQ water quality assessment. This report summarizes water quality findings based on a limited sampling event. The primary application of       probabilistic monitoring data is to establish national water quality conditions and not to perform a site specific characterization. Please see **the enclosed insert** for more information.</p>
+   <h4> Contact Information:</h4>
+   <p> Jason Hill<br> 
+   Probabilistic Monitoring Coordinator<br>
+   Department of Environmental Quality<br>
+   3019 Peters Creek Road <br>
+   Roanoke, VA 24019 <br>
+   540-562-6700 <br>
+   jason.hill @deq.virginia.gov</p>
+ </td>
+ </tr>
+</table>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See reverse side for result definitions.
+<br><br><br><br><br><br><br><br>
+
+####Definitions
+<table class=MsoTableGrid cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'> 
+<td width=319 valign=top style='width:255pt;padding:10pt;'>
+**Benthic Invertebrates** - Benthic macroinvertebrates include aquatic insects in their larval stage, small snails/clams, crayfish, aquatic worms, and leeches. They live on and under the rocks, sediments, and vegetation at the bottom of lakes. These organisms serve as good indicators of the biological quality of shoreline habitats in lakes.<br><br>
+**Zooplankton** - Zooplankton are small animals in the water column that constitute an important element of the aquatic food web. Zooplankton are sensitive to changes in the lake ecosystem. These organisms serve as good indicators of the biological quality of open water in lakes.<br><br>
+**Riparian Disturbance** -The lakeshore disturbance indicator reflects direct human alteration of the lakeshore itself. These disturbances can range from minor changes, such as the removal of a few trees to develop a picnic area, to major alterations, such as the construction of a large lakeshore residential complex. The effects of lakeshore development on the quality of lakes include excess sedimentation, loss of native plants, loss of vegetation complexity, and modifications to substrate types. These impacts, in turn, can negatively affect fish, wildlife, and other aquatic communities.<br><br>
+**Riparian Vegetative Cover** - Evaluation of lakeshore vegetation cover is based on observations of three layers of vegetation – understory grasses, mid-story non-woody and woody shrubs, and canopy trees. Shorelines are in better condition when vegetation cover is high in all layers.<br><br>
+**Nutrients (TN/TP)** - For this assessment, nutrients in the form of total phosphorus and total nitrogen were evaluated as indicators of the chemical condition of lakes. Phosphorus and nitrogen are critical nutrients required for all life. In appropriate quantities, these nutrients power the primary algal production necessary to support lake food webs. Phosphorus and nitrogen are linked indicators that jointly influence both the concentrations of algae in a lake and the clarity of water. The naturally occurring levels of these indicators vary regionally.<br><br>
+
+  </td>
+  <td width=319 valign=top style='width:255pt;padding:10pt;'>
+**Trophic State** - Trophic state is a common approach for classifying the biological productivity in lakes. Lakes with high nutrient levels, high plant production rates, and an abundance of plant life are termed eutrophic, whereas lakes that have low concentrations of nutrients, low rates of productivity, and generally low biological biomass are termed oligotrophic. Lakes that fall in between these two states are called mesotrophic. Hypereutrophic conditions are usually the result of human activity and can be an indicator of stress conditions.<br><br>
+**Microcystin** - are toxins produced by blue-green algae and are ubiquitous in surface water when conditions are favorable for growth and formation of algal blooms. It was detected in 39% of lakes, but only in 1% of lakes was it in levels that would cause harm to humans and wildlife. <br><br>
+**Atrazine** - Atrazine, one of the most widely used agricultural herbicides in the U.S., is applied before and after planting crops. Atrazine was not detected in 70% of lakes sampled. <br><br>
+**Mercury (methyl)** - Mercury is found in many rocks, including coal. When coal is burned, mercury is released into the environment. Some of the mercury in the air eventually settles into water or is washed into water. Certain microorganisms can change it into methylmercury, a toxic form that builds up in fish.
+</td>
+</tr>
+</table>
+
+
+
+
